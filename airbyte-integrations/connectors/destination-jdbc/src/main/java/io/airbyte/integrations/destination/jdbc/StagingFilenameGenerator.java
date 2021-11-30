@@ -4,6 +4,8 @@
 
 package io.airbyte.integrations.destination.jdbc;
 
+import io.airbyte.integrations.destination.jdbc.constants.GlobalJDBCConstants;
+
 /**
  * The staging file is uploaded to cloud storage in multiple parts. This class keeps track of the
  * filename, and returns a new one when the old file has had enough parts.
@@ -11,7 +13,6 @@ package io.airbyte.integrations.destination.jdbc;
 public class StagingFilenameGenerator {
 
   private final String streamName;
-  private final int maxPartsPerFile;
 
   // the file suffix will change after the max number of file
   // parts have been generated for the current suffix;
@@ -21,9 +22,10 @@ public class StagingFilenameGenerator {
   // file suffix; its value range will be [1, maxPartsPerFile]
   private int currentFileSuffixPartCount = 0;
 
-  public StagingFilenameGenerator(final String streamName, final int maxPartsPerFile) {
+  private final int chunkLimit = GlobalJDBCConstants.MAX_PARTS_PER_FILE / GlobalJDBCConstants.MAX_BATCH_SIZE_BYTES;
+
+  public StagingFilenameGenerator(final String streamName) {
     this.streamName = streamName;
-    this.maxPartsPerFile = maxPartsPerFile;
   }
 
   /**
@@ -32,7 +34,7 @@ public class StagingFilenameGenerator {
    * maxPartsPerFile.
    */
   public String getStagingFilename() {
-    if (currentFileSuffixPartCount < maxPartsPerFile) {
+    if (currentFileSuffixPartCount < chunkLimit) {
       // when the number of parts for the file has not reached the max,
       // keep using the same file (i.e. keep the suffix)
       currentFileSuffixPartCount += 1;

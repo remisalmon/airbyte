@@ -94,7 +94,7 @@ public abstract class S3StreamCopier implements StreamCopier {
     this.tmpTableName = nameTransformer.getTmpTableName(streamName);
     this.s3Client = client;
     this.s3Config = s3Config;
-    this.filenameGenerator = new StagingFilenameGenerator(streamName, MAX_PARTS_PER_FILE);
+    this.filenameGenerator = new StagingFilenameGenerator(streamName);
   }
 
   private String prepareS3StagingFile() {

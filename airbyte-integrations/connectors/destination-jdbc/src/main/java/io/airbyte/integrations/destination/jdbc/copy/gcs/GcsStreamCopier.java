@@ -84,7 +84,7 @@ public abstract class GcsStreamCopier implements StreamCopier {
     this.tmpTableName = nameTransformer.getTmpTableName(streamName);
     this.storageClient = storageClient;
     this.gcsConfig = gcsConfig;
-    this.filenameGenerator = new StagingFilenameGenerator(streamName, MAX_PARTS_PER_FILE);
+    this.filenameGenerator = new StagingFilenameGenerator(streamName);
   }
 
   private String prepareGcsStagingFile() {

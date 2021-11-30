@@ -14,7 +14,7 @@ class StagingFilenameGeneratorTest {
   private static final String STREAM_NAME = RandomStringUtils.randomAlphabetic(5).toLowerCase();
   private static final int MAX_PARTS_PER_FILE = 3;
   private static final StagingFilenameGenerator FILENAME_GENERATOR =
-      new StagingFilenameGenerator(STREAM_NAME, MAX_PARTS_PER_FILE);
+      new StagingFilenameGenerator(STREAM_NAME);
 
   @Test
   public void testGetStagingFilename() {
