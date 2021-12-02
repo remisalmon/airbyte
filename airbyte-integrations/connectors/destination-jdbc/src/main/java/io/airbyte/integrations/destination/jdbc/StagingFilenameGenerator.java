@@ -25,7 +25,7 @@ public class StagingFilenameGenerator {
   // This variable is responsible to set the size of chunks size (In MB). After chunks created in
   // S3 or GCS they will be uploaded to Snowflake or Redshift. These service have some limitations for the uploading file.
   // So we make the calculation to determine how many parts we can put to the single chunk file.
-  private final static long CHUNK_LIMIT = MAX_BYTE_PARTS_PER_FILE / MAX_BATCH_SIZE_BYTES;
+  private static final long CHUNK_LIMIT = MAX_BYTE_PARTS_PER_FILE / MAX_BATCH_SIZE_BYTES;
 
   public StagingFilenameGenerator(final String streamName) {
     this.streamName = streamName;

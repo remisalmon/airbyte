@@ -148,6 +148,7 @@ public class BufferedStreamConsumer extends FailureTrackingAirbyteMessageConsume
       // the destination
       long messageSizeInBytes = ByteUtils.getSizeInBytesForUTF8CharSet(Jsons.serialize(recordMessage.getData()));
       if (bufferSizeInBytes + messageSizeInBytes >= maxQueueSizeInBytes) {
+        LOGGER.info("Flushing buffer...");
         flushQueueToDestination();
         bufferSizeInBytes = 0;
       }
