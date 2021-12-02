@@ -16,7 +16,7 @@ class ByteUtilsTest {
     for (int i = 1; i < 1000; i++) {
       String s = RandomStringUtils.random(i);
       // for now the formula is just hardcoded to str length * 2
-      assertEquals(i * 2, ByteUtils.getSizeInBytes(s));
+      assertEquals(i * 2, ByteUtils.getSizeInBytesForUTF8CharSet(s));
     }
   }
 

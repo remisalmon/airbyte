@@ -4,7 +4,7 @@
 
 package io.airbyte.integrations.destination.jdbc.copy;
 
-import static io.airbyte.integrations.destination.jdbc.constants.GlobalJDBCConstants.MAX_BATCH_SIZE_BYTES;
+import static io.airbyte.integrations.destination.jdbc.constants.GlobalDataSizeConstants.MAX_BATCH_SIZE_BYTES;
 
 import io.airbyte.db.jdbc.JdbcDatabase;
 import io.airbyte.integrations.base.AirbyteMessageConsumer;

@@ -4,7 +4,7 @@
 
 package io.airbyte.integrations.destination.jdbc;
 
-import static io.airbyte.integrations.destination.jdbc.constants.GlobalJDBCConstants.MAX_BATCH_SIZE_BYTES;
+import static io.airbyte.integrations.destination.jdbc.constants.GlobalDataSizeConstants.MAX_BATCH_SIZE_BYTES;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.base.Preconditions;

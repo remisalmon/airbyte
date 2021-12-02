@@ -4,7 +4,7 @@
 
 package io.airbyte.integrations.destination.jdbc;
 
-import io.airbyte.integrations.destination.jdbc.constants.GlobalJDBCConstants;
+import static io.airbyte.integrations.destination.jdbc.constants.GlobalDataSizeConstants.*;
 
 /**
  * The staging file is uploaded to cloud storage in multiple parts. This class keeps track of the
@@ -20,9 +20,12 @@ public class StagingFilenameGenerator {
   private int currentFileSuffix = 0;
   // the number of parts that have been generated for the current
   // file suffix; its value range will be [1, maxPartsPerFile]
-  private int currentFileSuffixPartCount = 0;
+  private static int currentFileSuffixPartCount = 0;
 
-  private final int chunkLimit = GlobalJDBCConstants.MAX_PARTS_PER_FILE / GlobalJDBCConstants.MAX_BATCH_SIZE_BYTES;
+  // This variable is responsible to set the size of chunks size (In MB). After chunks created in
+  // S3 or GCS they will be uploaded to Snowflake or Redshift. These service have some limitations for the uploading file.
+  // So we make the calculation to determine how many parts we can put to the single chunk file.
+  private final static long CHUNK_LIMIT = MAX_BYTE_PARTS_PER_FILE / MAX_BATCH_SIZE_BYTES;
 
   public StagingFilenameGenerator(final String streamName) {
     this.streamName = streamName;
@@ -34,7 +37,7 @@ public class StagingFilenameGenerator {
    * maxPartsPerFile.
    */
   public String getStagingFilename() {
-    if (currentFileSuffixPartCount < chunkLimit) {
+    if (currentFileSuffixPartCount < CHUNK_LIMIT) {
       // when the number of parts for the file has not reached the max,
       // keep using the same file (i.e. keep the suffix)
       currentFileSuffixPartCount += 1;

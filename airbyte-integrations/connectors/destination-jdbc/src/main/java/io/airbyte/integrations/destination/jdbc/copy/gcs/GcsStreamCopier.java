@@ -103,8 +103,7 @@ public abstract class GcsStreamCopier implements StreamCopier {
       channels.put(name, channel);
       final OutputStream outputStream = Channels.newOutputStream(channel);
 
-      final var writer = new PrintWriter(outputStream, true, StandardCharsets.UTF_8);
-      try {
+      try (var writer = new PrintWriter(outputStream, true, StandardCharsets.UTF_8)) {
         csvPrinters.put(name, new CSVPrinter(writer, CSVFormat.DEFAULT));
       } catch (final IOException e) {
         throw new RuntimeException(e);
