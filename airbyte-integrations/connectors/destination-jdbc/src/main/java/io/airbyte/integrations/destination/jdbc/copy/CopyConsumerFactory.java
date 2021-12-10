@@ -4,7 +4,7 @@
 
 package io.airbyte.integrations.destination.jdbc.copy;
 
-import static io.airbyte.integrations.destination.jdbc.constants.GlobalDataSizeConstants.MAX_BATCH_SIZE_BYTES;
+import static io.airbyte.integrations.destination.jdbc.constants.GlobalDataSizeConstants.DEFAULT_MAX_BATCH_SIZE_BYTES;
 
 import io.airbyte.db.jdbc.JdbcDatabase;
 import io.airbyte.integrations.base.AirbyteMessageConsumer;
@@ -57,7 +57,7 @@ public class CopyConsumerFactory {
         onCloseFunction(pairToCopier, database, sqlOperations, pairToIgnoredRecordCount),
         catalog,
         sqlOperations::isValidData,
-        MAX_BATCH_SIZE_BYTES);
+        DEFAULT_MAX_BATCH_SIZE_BYTES);
   }
 
   private static <T> Map<AirbyteStreamNameNamespacePair, StreamCopier> createWriteConfigs(final ExtendedNameTransformer namingResolver,
