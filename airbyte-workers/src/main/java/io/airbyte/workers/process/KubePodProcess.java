@@ -4,12 +4,14 @@
 
 package io.airbyte.workers.process;
 
+import com.google.common.collect.MoreCollectors;
 import io.airbyte.commons.lang.Exceptions;
 import io.airbyte.commons.resources.MoreResources;
 import io.airbyte.config.ResourceRequirements;
 import io.airbyte.config.TolerationPOJO;
 import io.fabric8.kubernetes.api.model.Container;
 import io.fabric8.kubernetes.api.model.ContainerBuilder;
+import io.fabric8.kubernetes.api.model.ContainerStatus;
 import io.fabric8.kubernetes.api.model.DeletionPropagation;
 import io.fabric8.kubernetes.api.model.LocalObjectReference;
 import io.fabric8.kubernetes.api.model.Pod;
@@ -167,7 +169,7 @@ public class KubePodProcess extends Process {
                                    final String[] args)
       throws IOException {
     final var argsStr = String.join(" ", args);
-    final var optionalStdin = usesStdin ? String.format("cat %s | ", STDIN_PIPE_FILE) : "";
+    final var optionalStdin = usesStdin ? String.format("< %s", STDIN_PIPE_FILE) : "";
     final var entrypointOverrideValue = entrypointOverride == null ? "" : StringEscapeUtils.escapeXSI(entrypointOverride);
 
     // communicates its completion to the heartbeat check via a file and closes itself if the heartbeat
@@ -538,10 +540,15 @@ public class KubePodProcess extends Process {
 
   private boolean isTerminal(final Pod pod) {
     if (pod.getStatus() != null) {
-      return pod.getStatus()
+      // Check if "main" container has terminated, as that defines whether the parent process has
+      // terminated.
+      final ContainerStatus mainContainerStatus = pod.getStatus()
           .getContainerStatuses()
           .stream()
-          .anyMatch(e -> e.getState() != null && e.getState().getTerminated() != null);
+          .filter(containerStatus -> containerStatus.getName().equals("main"))
+          .collect(MoreCollectors.onlyElement());
+
+      return mainContainerStatus.getState() != null && mainContainerStatus.getState().getTerminated() != null;
     } else {
       return false;
     }
@@ -579,14 +586,16 @@ public class KubePodProcess extends Process {
       throw new IllegalThreadStateException("Kube pod process has not exited yet.");
     }
 
-    returnCode = refreshedPod.getStatus().getContainerStatuses()
+    final ContainerStatus mainContainerStatus = refreshedPod.getStatus().getContainerStatuses()
         .stream()
-        .filter(containerStatus -> containerStatus.getState() != null && containerStatus.getState().getTerminated() != null)
-        .map(containerStatus -> {
-          return containerStatus.getState().getTerminated().getExitCode();
-        })
-        .reduce(Integer::sum)
-        .orElseThrow();
+        .filter(containerStatus -> containerStatus.getName().equals("main"))
+        .collect(MoreCollectors.onlyElement());
+
+    if (mainContainerStatus.getState() == null || mainContainerStatus.getState().getTerminated() == null) {
+      throw new IllegalThreadStateException("Main container in kube pod has not terminated yet.");
+    }
+
+    returnCode = mainContainerStatus.getState().getTerminated().getExitCode();
 
     LOGGER.info("Exit code for pod {} is {}", name, returnCode);
     return returnCode;
